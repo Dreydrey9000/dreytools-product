@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
+<title>Drey Playbook — Ship your first product in 30 days</title>
+<style>
+  :root {
+    --bg: #0a0908; --bg-1: #14110e; --bg-2: #1c1815; --bg-3: #2a2420;
+    --line: #2e2722; --line-hot: #3a2e24;
+    --text: #f5ead9; --text-dim: #b5a493; --text-muted: #6b5d4f;
+    --cyan: #22d3ee; --cyan-dim: #0891b2; --amber: #f59e0b; --green: #10b981;
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34, 211, 238, 0.1), transparent 60%);
+    pointer-events: none;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+  a { color: var(--cyan); text-decoration: none; }
+
+  /* NAV */
+  nav {
+    padding: calc(var(--safe-top) + 16px) 0 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,9,8,0.85); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-weight: 900; letter-spacing: -0.02em; font-size: 17px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .nav-links { display: flex; gap: 20px; align-items: center; font-size: 14px; }
+  .nav-links a { color: var(--text-dim); font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .buy-cta {
+    padding: 8px 16px; background: var(--cyan); color: var(--bg);
+    font-weight: 700; border-radius: 8px;
+  }
+  .buy-cta:hover { color: var(--bg); box-shadow: 0 6px 18px rgba(34,211,238,0.3); }
+  @media (max-width: 640px) { .nav-links a:not(.buy-cta) { display: none; } }
+
+  /* HERO */
+  .hero {
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: 56px; padding: 56px 0 80px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 40px; padding: 32px 0 48px; } }
+
+  .hero-left .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cyan); padding: 6px 12px; border-radius: 20px;
+    background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2);
+    margin-bottom: 20px;
+  }
+  .eyebrow::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
+  h1 {
+    font-size: clamp(40px, 6.5vw, 64px); font-weight: 900;
+    letter-spacing: -0.035em; line-height: 1.02; margin-bottom: 16px;
+  }
+  h1 .accent { color: var(--cyan); }
+  .sub {
+    font-size: clamp(16px, 2.1vw, 19px); color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+  .trust {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 13px; color: var(--text-muted); margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .stars { color: var(--amber); letter-spacing: 2px; }
+  .trust b { color: var(--text-dim); }
+
+  /* PRODUCT MEDIA */
+  .product-media {
+    position: relative;
+    aspect-ratio: 1/1;
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.35), transparent 60%),
+      radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.18), transparent 60%),
+      linear-gradient(135deg, var(--bg-2), var(--bg-3));
+    border: 1px solid var(--line-hot);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 60px rgba(34,211,238,0.1);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .product-cover {
+    width: 74%;
+    aspect-ratio: 3/4;
+    background: linear-gradient(180deg, var(--bg-3), var(--bg));
+    border: 1px solid var(--cyan);
+    border-radius: 14px;
+    display: flex; flex-direction: column;
+    padding: 28px 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotate(-2deg);
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .product-media:hover .product-cover { transform: rotate(0deg) scale(1.03); }
+  .cover-mini {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.16em;
+    color: var(--cyan); text-transform: uppercase; margin-bottom: auto;
+  }
+  .cover-title {
+    font-size: 32px; font-weight: 900; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 8px;
+  }
+  .cover-title .c-accent { color: var(--cyan); }
+  .cover-sub {
+    font-size: 13px; color: var(--text-muted); margin-bottom: 24px;
+  }
+  .cover-bottom {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: 'SF Mono', Menlo, monospace; font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .cover-bottom b { color: var(--text); font-weight: 800; }
+
+  /* BUY CARD */
+  .buy-card {
+    background: var(--bg-1);
+    border: 1px solid var(--line-hot);
+    border-radius: 16px; padding: 24px;
+    margin-bottom: 28px;
+  }
+  .price-row {
+    display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px;
+  }
+  .price-main {
+    font-size: 48px; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+    color: var(--cyan);
+  }
+  .price-old { font-size: 20px; color: var(--text-muted); text-decoration: line-through; }
+  .save-badge {
+    background: rgba(16,185,129,0.15); color: var(--green);
+    border: 1px solid rgba(16,185,129,0.3);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 5px;
+  }
+  .add-btn {
+    width: 100%; padding: 16px;
+    background: var(--cyan); color: var(--bg); border: none;
+    border-radius: 12px;
+    font-size: 16px; font-weight: 800;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 12px 32px rgba(34,211,238,0.3);
+  }
+  .add-btn:hover { transform: translateY(-1px); box-shadow: 0 16px 40px rgba(34,211,238,0.45); }
+  .add-btn:active { transform: translateY(0); }
+  .add-btn svg { width: 18px; height: 18px; }
+  .add-btn.added { background: var(--green); }
+  .buy-note {
+    margin-top: 14px; font-size: 12px; color: var(--text-muted); text-align: center;
+  }
+  .buy-note b { color: var(--text-dim); }
+
+  /* FEATURES STRIP */
+  .strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .strip-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--bg-1);
+    border: 1px solid var(--line); border-radius: 10px;
+  }
+  .strip-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(34,211,238,0.1); color: var(--cyan);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .strip-icon svg { width: 14px; height: 14px; }
+  .strip-text { font-size: 12px; font-weight: 600; }
+  .strip-text .sub { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+
+  /* SECTION */
+  section { padding: 60px 0; border-top: 1px solid var(--line); }
+  section.alt { background: var(--bg-1); border-top: 1px solid var(--line); }
+  .section-h {
+    font-size: clamp(28px, 3.8vw, 40px); font-weight: 900; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .section-h .accent { color: var(--cyan); }
+  .section-sub {
+    color: var(--text-dim); font-size: 16px; margin-bottom: 40px; max-width: 620px;
+  }
+
+  /* MODULES */
+  .modules { list-style: none; counter-reset: m; display: grid; gap: 10px; }
+  .modules li {
+    counter-increment: m;
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 24px 20px 68px;
+    position: relative;
+  }
+  .modules li::before {
+    content: counter(m, decimal-leading-zero);
+    position: absolute; left: 20px; top: 20px;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 13px; font-weight: 800; color: var(--cyan);
+  }
+  .modules li h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .modules li p { font-size: 13px; color: var(--text-dim); }
+
+  /* TESTIMONIALS */
+  .testimonials {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .testimonial {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px;
+  }
+  .t-stars { color: var(--amber); letter-spacing: 2px; font-size: 14px; margin-bottom: 10px; }
+  .testimonial blockquote {
+    font-size: 14px; color: var(--text); font-weight: 500;
+    line-height: 1.5; margin-bottom: 14px;
+  }
+  .testimonial cite {
+    font-size: 12px; color: var(--text-muted); font-style: normal;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .t-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: var(--bg);
+  }
+  .t-avatar.cy { background: linear-gradient(135deg, #22d3ee, #0891b2); }
+  .t-avatar.am { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .t-avatar.pk { background: linear-gradient(135deg, #ec4899, #be185d); color: #fff; }
+
+  /* FAQ */
+  details {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 8px;
+  }
+  details[open] { border-color: var(--line-hot); }
+  summary {
+    font-weight: 700; font-size: 15px; cursor: pointer; list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  summary::after { content: '+'; font-size: 22px; color: var(--cyan); font-weight: 300; line-height: 1; }
+  details[open] summary::after { content: '−'; }
+  details p { margin-top: 12px; color: var(--text-dim); font-size: 14px; }
+
+  /* FINAL CTA */
+  .final-cta {
+    text-align: center; padding: 72px 24px;
+    background: linear-gradient(180deg, var(--bg-1), var(--bg));
+    border-top: 1px solid var(--line);
+  }
+  .final-cta h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 900; letter-spacing: -0.02em; margin-bottom: 14px; }
+  .final-cta p { color: var(--text-dim); margin-bottom: 28px; }
+  .final-cta .add-btn { max-width: 320px; margin: 0 auto; }
+
+  footer {
+    padding: 28px 24px calc(28px + var(--safe-bottom)); text-align: center;
+    color: var(--text-muted); font-size: 12px;
+    border-top: 1px solid var(--line);
+    font-family: 'SF Mono', Menlo, monospace;
+  }
+</style>
+</head>
+<body>
+
+<nav class="wrap">
+  <div class="logo">Drey Playbook</div>
+  <div class="nav-links">
+    <a href="#what">What's inside</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#faq">FAQ</a>
+    <a href="#buy" class="buy-cta">Buy $97</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="eyebrow">Digital Playbook · Instant Access</div>
+      <h1>Ship your first product in <span class="accent">30 days.</span></h1>
+      <p class="sub">The exact 9-move playbook Drey used to ship 42 tools. No fluff, no theory — every lesson ends with a move you make that day.</p>
+
+      <div class="trust">
+        <span class="stars">★★★★★</span>
+        <span><b>1,247</b> builders shipped</span>
+        <span>·</span>
+        <span>60-day refund</span>
+      </div>
+
+      <div class="buy-card" id="buy">
+        <div class="price-row">
+          <span class="price-main">$97</span>
+          <span class="price-old">$297</span>
+          <span class="save-badge">Save $200</span>
+        </div>
+        <button class="add-btn" id="buy-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          <span id="buy-label">Get instant access</span>
+        </button>
+        <div class="buy-note">One-time payment · Lifetime updates · <b>Instant download</b></div>
+      </div>
+
+      <div class="strip">
+        <div class="strip-item">
+          <div class="strip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="strip-text">9 modules<div class="sub">42 exact moves</div></div>
+        </div>
+        <div class="strip-item">
+          <div class="strip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="strip-text">12 templates<div class="sub">Swipe + ship</div></div>
+        </div>
+        <div class="strip-item">
+          <div class="strip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="strip-text">Lifetime updates<div class="sub">New tactics quarterly</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-media" aria-hidden="true">
+      <div class="product-cover">
+        <div class="cover-mini">Drey Playbook · v2026</div>
+        <div class="cover-title">Ship<br><span class="c-accent">fast.</span></div>
+        <div class="cover-sub">The 9 moves that take you from idea to paid in 30 days.</div>
+        <div class="cover-bottom">
+          <span>by <b>Drey Thomas</b></span>
+          <span>1,247 builders</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<section id="what" class="alt">
+  <div class="wrap">
+    <h2 class="section-h">What's <span class="accent">inside.</span></h2>
+    <p class="section-sub">9 modules, 42 exact moves, 12 swipeable templates. Every lesson is under 8 minutes and ends with a move you make that day.</p>
+
+    <ol class="modules">
+      <li><h3>Find the real problem</h3><p>The 3-question framework that tells you if an idea is worth shipping before you write a line of code.</p></li>
+      <li><h3>Pre-sell before you build</h3><p>The exact outreach script that gets 10 paying waitlist signups in a week.</p></li>
+      <li><h3>Build the ugly version</h3><p>The 72-hour first-version protocol. Ship broken, ship now, iterate later.</p></li>
+      <li><h3>Launch with zero audience</h3><p>14-day launch sequence for creators with under 1,000 followers. Tested on 600+ launches.</p></li>
+      <li><h3>Get paid the first week</h3><p>Pricing anchor strategy, payment collection, and the no-refund conversation done right.</p></li>
+      <li><h3>Deliver so they tell friends</h3><p>The onboarding flow that turns 30% of buyers into referrers within 14 days.</p></li>
+      <li><h3>Automate the boring</h3><p>Plug-and-play automation stack: Zapier + Resend + Stripe + Convex. Templates included.</p></li>
+      <li><h3>Raise prices without losing anyone</h3><p>The grandfather-in email template that doubled revenue on 80% of my products.</p></li>
+      <li><h3>Know when to kill it</h3><p>The 90-day kill criteria. Most products fail not from lack of effort but from building the wrong thing too long.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="wrap">
+    <h2 class="section-h">What builders are <span class="accent">saying.</span></h2>
+    <p class="section-sub">A few notes from the 1,247 people who went through this.</p>
+
+    <div class="testimonials">
+      <div class="testimonial">
+        <div class="t-stars">★★★★★</div>
+        <blockquote>I'd been stuck on the same idea for 9 months. Got through module 2, shipped in a weekend, did $840 that month. The most direct thing I've ever paid for.</blockquote>
+        <cite><span class="t-avatar cy">AK</span><b>Amanda K.</b> — shipped in 11 days</cite>
+      </div>
+      <div class="testimonial">
+        <div class="t-stars">★★★★★</div>
+        <blockquote>What I liked: every lesson ends with homework you actually do that day. No fluff philosophy chapters. Finished in 3 weeks, now $4k MRR.</blockquote>
+        <cite><span class="t-avatar am">MR</span><b>Marco R.</b> — $4k MRR</cite>
+      </div>
+      <div class="testimonial">
+        <div class="t-stars">★★★★★</div>
+        <blockquote>Module 4 alone was worth the price. Launched to 180 followers, did 23 sales in 72 hours. My first real product.</blockquote>
+        <cite><span class="t-avatar pk">SK</span><b>Sarah K.</b> — 23 launch-week sales</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="alt">
+  <div class="wrap">
+    <h2 class="section-h">Questions, <span class="accent">answered.</span></h2>
+    <p class="section-sub">The ones people actually ask before buying.</p>
+
+    <details open>
+      <summary>How is this different from YouTube tutorials?</summary>
+      <p>YouTube tells you what to do. The Playbook makes you do it. Every lesson has a homework step — if you don't do it, you don't unlock the next one. 70% of buyers finish. YouTube tutorial average completion: under 3%.</p>
+    </details>
+    <details>
+      <summary>What if I'm a complete beginner?</summary>
+      <p>Modules 1–3 assume zero experience. You'll need a laptop, an internet connection, and about 4 hours per week for 4 weeks. If you can send an email, you can ship through this.</p>
+    </details>
+    <details>
+      <summary>What format is the content?</summary>
+      <p>Short-form video lessons (each under 8 minutes), downloadable templates, and a private text-only Discord channel for questions. No forum, no gamification, no distractions.</p>
+    </details>
+    <details>
+      <summary>Will I actually get new updates?</summary>
+      <p>Yes. New modules drop quarterly as tactics change. Lifetime access means you get every future update for free. The 2026 edition added modules 7-9.</p>
+    </details>
+    <details>
+      <summary>What's the refund policy?</summary>
+      <p>60 days, no questions asked. Email the contact address on your receipt, and the last charge gets refunded. I'd rather you keep the money than give it begrudgingly.</p>
+    </details>
+  </div>
+</section>
+
+<section class="final-cta">
+  <h2>Stop guessing. Start <span style="color:var(--cyan);">shipping.</span></h2>
+  <p>$97 one-time · 60-day refund · Lifetime updates</p>
+  <button class="add-btn" id="buy-btn-2" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    Get instant access
+  </button>
+</section>
+
+<footer>drey tools · product page · <a href="https://dreythomas.com" style="color:var(--cyan);">dreythomas.com</a></footer>
+
+<script>
+  function handleBuy(btnId, labelId) {
+    const btn = document.getElementById(btnId);
+    btn.addEventListener('click', () => {
+      btn.classList.add('added');
+      const labelEl = labelId ? document.getElementById(labelId) : null;
+      const origText = labelEl ? labelEl.textContent : btn.textContent;
+      if (labelEl) {
+        labelEl.textContent = 'Redirecting to checkout...';
+      } else {
+        btn.textContent = 'Redirecting to checkout...';
+      }
+      // Stripe checkout wiring goes here when keys are ready. For now,
+      // fall back to contact form so the user can still reach Drey.
+      setTimeout(() => {
+        window.location.href = 'https://contact.dreytools.com?topic=Hire';
+      }, 900);
+    });
+  }
+  handleBuy('buy-btn', 'buy-label');
+  handleBuy('buy-btn-2');
+</script>
+
+</body>
+</html>
