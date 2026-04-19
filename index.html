@@ -20,12 +20,46 @@
     background: var(--bg); color: var(--text); line-height: 1.5;
     overflow-x: hidden;
   }
+  /* MOTION LAYER 1 — aurora mesh */
   body::before {
-    content: ''; position: fixed; inset: 0; z-index: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34, 211, 238, 0.1), transparent 60%);
+    content: ''; position: fixed; inset: -20%; z-index: 0;
+    background:
+      radial-gradient(ellipse 50% 40% at 20% 25%, rgba(34, 211, 238, 0.24), transparent 60%),
+      radial-gradient(ellipse 40% 35% at 80% 75%, rgba(245, 158, 11, 0.16), transparent 60%),
+      radial-gradient(ellipse 45% 30% at 55% 100%, rgba(236, 72, 153, 0.1), transparent 60%);
+    filter: blur(60px) saturate(1.3);
+    animation: aurora-drift 32s ease-in-out infinite alternate;
     pointer-events: none;
   }
-  .wrap { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+  body::after {
+    content: ''; position: fixed; inset: 0; z-index: 1;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, transparent 40%, rgba(10, 9, 8, 0.55));
+    pointer-events: none;
+  }
+  @keyframes aurora-drift {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+    50%  { transform: translate(4%, -3%) rotate(2deg) scale(1.03); }
+    100% { transform: translate(-3%, 5%) rotate(-2deg) scale(0.98); }
+  }
+  #particles {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  }
+  .cursor-glow {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.12) 0%, transparent 55%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    z-index: 2;
+    mix-blend-mode: screen;
+    filter: blur(20px);
+  }
+  .cursor-glow.active { opacity: 1; }
+  @media (hover: none) { .cursor-glow { display: none; } }
+  .wrap { position: relative; z-index: 3; max-width: 1140px; margin: 0 auto; padding: 0 24px; }
   a { color: var(--cyan); text-decoration: none; }
 
   /* NAV */
@@ -283,6 +317,9 @@
 </head>
 <body>
 
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+
 <nav class="wrap">
   <div class="logo">Drey Playbook</div>
   <div class="nav-links">
@@ -436,6 +473,94 @@
 <footer><b style="color:var(--text)">One-Person Software</b> · a one-person product, built by <a href="https://drdrey.com" style="color:var(--cyan);">drey</a> · <a href="https://showcase.dreytools.com" style="color:var(--cyan);">see all 11 tools</a></footer>
 
 <script>
+  // Cursor-reactive glow
+  (function() {
+    const glow = document.getElementById('cursor-glow');
+    if (!glow) return;
+    let raf = null;
+    document.addEventListener('pointermove', e => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+        glow.classList.add('active');
+      });
+    });
+    document.addEventListener('pointerleave', () => glow.classList.remove('active'));
+  })();
+
+  // Particle field (ambient drift with cursor repulsion)
+  (function() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = document.getElementById('particles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, DPR;
+    let particles = [];
+    let mouse = { x: -9999, y: -9999 };
+    const isMobile = window.matchMedia('(max-width: 820px), (hover: none)').matches;
+    const COUNT = isMobile ? 24 : 48;
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.width = Math.floor(window.innerWidth * DPR);
+      H = canvas.height = Math.floor(window.innerHeight * DPR);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    for (let i = 0; i < COUNT; i++) {
+      particles.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.25 * DPR,
+        vy: (Math.random() - 0.5) * 0.25 * DPR,
+        r: (Math.random() * 1.4 + 0.4) * DPR,
+        a: Math.random() * 0.5 + 0.2,
+      });
+    }
+    window.addEventListener('pointermove', e => { mouse.x = e.clientX * DPR; mouse.y = e.clientY * DPR; });
+    window.addEventListener('pointerleave', () => { mouse.x = -9999; mouse.y = -9999; });
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of particles) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const d2 = dx*dx + dy*dy;
+        const R = 140 * DPR;
+        if (d2 < R*R) {
+          const d = Math.sqrt(d2);
+          const push = (R - d) / R * 1.8;
+          p.x += (dx/d) * push; p.y += (dy/d) * push;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(34, 211, 238, ' + p.a + ')';
+        ctx.fill();
+      }
+      // network lines
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx*dx + dy*dy;
+          const MAX = 110 * DPR;
+          if (d2 < MAX*MAX) {
+            const alpha = (1 - Math.sqrt(d2) / MAX) * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = 'rgba(34, 211, 238, ' + alpha + ')';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  })();
+
   function handleBuy(btnId, labelId) {
     const btn = document.getElementById(btnId);
     btn.addEventListener('click', () => {
